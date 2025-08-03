@@ -2,6 +2,7 @@ import classNames from "classnames";
 import ResolvedIcon from "components/resolvedicon";
 import { useContext } from "react";
 import { SettingsContext } from "utils/contexts/settings";
+import { getHost } from "utils/utils";
 
 export default function Item({ bookmark, iconOnly = false }) {
   const description = bookmark.description ?? new URL(bookmark.href).hostname;
@@ -43,6 +44,11 @@ export default function Item({ bookmark, iconOnly = false }) {
                 </div>
               )}
               {!bookmark.icon && bookmark.abbr}
+              {!bookmark.icon && !bookmark.abbr && (
+                <div className="shrink-0 w-5 h-5">
+                  <ResolvedIcon icon={`https://favicon.pub/api/${getHost(bookmark.href)}`} alt={bookmark.abbr} />
+                </div>
+              )}
             </div>
             <div className="flex-1 overflow-hidden flex items-center justify-between rounded-r-md bookmark-text">
               <div className="pl-3 py-2 text-xs bookmark-name">{bookmark.name}</div>
