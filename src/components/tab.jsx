@@ -10,10 +10,10 @@ export function slugifyAndEncode(tabName) {
   return tabName !== undefined ? encodeURIComponent(slugify(tabName)) : "";
 }
 
-export default function Tab({ tab }) {
-  const { activeTab, setActiveTab } = useContext(TabContext);
+export default function Tab({ tab, isBookmarkTab }) {
+  const { activeTab, setActiveTab, activeBookmarkTab, setActiveBookmarkTab } = useContext(TabContext);
 
-  const matchesTab = decodeURIComponent(activeTab) === slugify(tab);
+  const matchesTab = isBookmarkTab ? decodeURIComponent(activeBookmarkTab) === slugify(tab) : decodeURIComponent(activeTab) === slugify(tab);
 
   return (
     <li
@@ -32,8 +32,12 @@ export default function Tab({ tab }) {
           matchesTab ? "bg-theme-300/20 dark:bg-white/10" : "hover:bg-theme-100/20 dark:hover:bg-white/5",
         )}
         onClick={() => {
-          setActiveTab(slugifyAndEncode(tab));
-          window.location.hash = `#${slugifyAndEncode(tab)}`;
+          if (isBookmarkTab) {
+            setActiveBookmarkTab(slugifyAndEncode(tab));
+          } else {
+            setActiveTab(slugifyAndEncode(tab));
+            window.location.hash = `#${slugifyAndEncode(tab)}`;
+          }
         }}
       >
         {tab}

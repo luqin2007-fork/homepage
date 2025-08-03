@@ -202,7 +202,7 @@ function Home({ initialSettings }) {
   const { theme, setTheme } = useContext(ThemeContext);
   const { color, setColor } = useContext(ColorContext);
   const { settings, setSettings } = useContext(SettingsContext);
-  const { activeTab, setActiveTab } = useContext(TabContext);
+  const { activeTab, setActiveTab, activeBookmarkTab, setActiveBookmarkTab } = useContext(TabContext);
   const { asPath } = useRouter();
 
   useEffect(() => {
@@ -272,20 +272,41 @@ function Home({ initialSettings }) {
     [settings.layout],
   );
 
+  const bookmarkTabs = useMemo(
+    () => [
+      ...new Set(
+        Object.keys(settings.layout ?? {})
+          .map((groupName) => settings.layout[groupName]?.bookmarkTab?.toString())
+          .filter((group) => group),
+      ),
+    ],
+    [settings.layout],
+  );
+
   useEffect(() => {
     if (!activeTab) {
       const initialTab = asPath.substring(asPath.indexOf("#") + 1);
       setActiveTab(initialTab === "/" ? slugifyAndEncode(tabs["0"]) : initialTab);
     }
+    if (!activeBookmarkTab) {
+      setActiveBookmarkTab(slugifyAndEncode(bookmarkTabs["0"]));
+    }
   });
 
   const servicesAndBookmarksGroups = useMemo(() => {
     const tabGroupFilter = (g) => g && [activeTab, ""].includes(slugifyAndEncode(settings.layout?.[g.name]?.tab));
+    const tabBookmarkGroupFilter = (g) => g && [activeBookmarkTab].includes(slugifyAndEncode(settings.layout?.[g.name]?.bookmarkTab));
     const undefinedGroupFilter = (g) => settings.layout?.[g.name] === undefined;
+    const undefinedBookmarkGroupFilter = (g) => settings?.layout?.[g.name]?.bookmarkTab === undefined;
 
     const layoutGroups = Object.keys(settings.layout ?? {})
       .map((groupName) => services?.find((g) => g.name === groupName) ?? bookmarks?.find((b) => b.name === groupName))
-      .filter(tabGroupFilter);
+      .filter(tabGroupFilter)
+      .filter(undefinedBookmarkGroupFilter);
+
+    const layoutBookmarkGroups = Object.keys(settings.layout ?? {})
+      .map((groupName) => services?.find((g) => g.name === groupName) ?? bookmarks?.find((b) => b.name === groupName))
+      .filter(tabBookmarkGroupFilter);
 
     if (!settings.layout && JSON.stringify(settings.layout) !== JSON.stringify(initialSettings.layout)) {
       // wait for settings to populate (if different from initial settings), otherwise all the widgets will be requested initially even if we are on a single tab
@@ -303,14 +324,14 @@ function Home({ initialSettings }) {
               className={classNames(
                 "sm:flex rounded-md bg-theme-100/20 dark:bg-white/5",
                 settings.cardBlur !== undefined &&
-                  `backdrop-blur${settings.cardBlur.length ? "-" : ""}${settings.cardBlur}`,
+                `backdrop-blur${settings.cardBlur.length ? "-" : ""}${settings.cardBlur}`,
               )}
               id="myTab"
               data-tabs-toggle="#myTabContent"
               role="tablist"
             >
               {tabs.map((tab) => (
-                <Tab key={tab} tab={tab} />
+                <Tab key={tab} tab={tab} isBookmarkTab={false} />
               ))}
             </ul>
           </div>
@@ -370,11 +391,55 @@ function Home({ initialSettings }) {
             ))}
           </div>
         )}
+        {bookmarkTabs.length > 0 && (
+          <div key="bookmarkTabs" id="bookmarkTabs" className="m-5 sm:m-9 sm:mt-4 sm:mb-0">
+            <ul
+              className={classNames(
+                "sm:flex rounded-md bg-theme-100/20 dark:bg-white/5",
+                settings.cardBlur !== undefined &&
+                `backdrop-blur${settings.cardBlur.length ? "-" : ""}${settings.cardBlur}`,
+              )}
+              id="myBookmarkTab"
+              data-tabs-toggle="#myBookmarkTabContent"
+              role="tablist"
+            >
+              {bookmarkTabs.map((tab) => (
+                <Tab key={tab} tab={tab} isBookmarkTab={true} />
+              ))}
+            </ul>
+          </div>
+        )}
+        {layoutBookmarkGroups.length > 0 && (
+          <div key="layoutGroups" id="layout-groups" className="flex flex-wrap m-4 sm:m-8 sm:mt-4 items-start mb-2">
+            {layoutBookmarkGroups.map((group) =>
+              group.services ? (
+                <ServicesGroup
+                  key={group.name}
+                  group={group}
+                  layout={settings.layout?.[group.name]}
+                  maxGroupColumns={settings.fiveColumns ? 5 : settings.maxGroupColumns}
+                  disableCollapse={settings.disableCollapse}
+                  useEqualHeights={settings.useEqualHeights}
+                  groupsInitiallyCollapsed={settings.groupsInitiallyCollapsed}
+                />
+              ) : (
+                <BookmarksGroup
+                  key={group.name}
+                  bookmarks={group}
+                  layout={settings.layout?.[group.name]}
+                  disableCollapse={settings.disableCollapse}
+                  maxGroupColumns={settings.maxBookmarkGroupColumns ?? settings.maxGroupColumns}
+                  groupsInitiallyCollapsed={settings.groupsInitiallyCollapsed}
+                />
+              ),
+            )}
+          </div>
+        )}
       </>
     );
   }, [
     tabs,
-    activeTab,
+    activeTab, activeBookmarkTab,
     services,
     bookmarks,
     settings.layout,
@@ -440,8 +505,8 @@ function Home({ initialSettings }) {
             "flex flex-row flex-wrap justify-between z-20",
             headerStyles[headerStyle],
             settings.cardBlur !== undefined &&
-              headerStyle === "boxed" &&
-              `backdrop-blur${settings.cardBlur.length ? "-" : ""}${settings.cardBlur}`,
+            headerStyle === "boxed" &&
+            `backdrop-blur${settings.cardBlur.length ? "-" : ""}${settings.cardBlur}`,
           )}
         >
           <div id="widgets-wrap" className={classNames("flex flex-row w-full flex-wrap justify-between gap-x-2")}>
@@ -554,7 +619,7 @@ export default function Wrapper({ initialSettings, fallback }) {
           className={classNames(
             "w-full h-full overflow-auto",
             backgroundBlur &&
-              `backdrop-blur${initialSettings.background.blur?.length ? `-${initialSettings.background.blur}` : ""}`,
+            `backdrop-blur${initialSettings.background.blur?.length ? `-${initialSettings.background.blur}` : ""}`,
             backgroundSaturate && `backdrop-saturate-${initialSettings.background.saturate}`,
             backgroundBrightness && `backdrop-brightness-${initialSettings.background.brightness}`,
           )}
