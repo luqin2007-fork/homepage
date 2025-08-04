@@ -9,6 +9,7 @@ import { ColorProvider } from "utils/contexts/color";
 import { SettingsProvider } from "utils/contexts/settings";
 import { TabProvider } from "utils/contexts/tab";
 import { ThemeProvider } from "utils/contexts/theme";
+import { BookmarkProvider } from "utils/contexts/bookmark";
 
 import nextI18nextConfig from "../../next-i18next.config";
 
@@ -85,7 +86,9 @@ function MyApp({ Component, pageProps }) {
         <ThemeProvider>
           <SettingsProvider>
             <TabProvider>
-              <Component {...pageProps} />
+              <BookmarkProvider>
+                <Component {...pageProps} />
+              </BookmarkProvider>
             </TabProvider>
           </SettingsProvider>
         </ThemeProvider>

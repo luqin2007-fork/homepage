@@ -54,3 +54,4 @@ site*/
 .venv/
 
 scripts
+pnpm-lock.yaml
