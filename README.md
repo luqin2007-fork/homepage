@@ -36,5 +36,28 @@ layout:
 ![](images/QQ20250804-182531.png)
 
 - [x] 加密 Tab
+
+在 `settings.yaml` 中添加 `passwords` 属性即可。
+
+**注意，密码不会隐藏从服务器获取的 `bookmarks.yaml` 或 `service.yaml` 中的内容**
+
+```yaml
+layout:
+  fullWidth: true
+  _s_manager:
+    tab: 管理
+  _b_help_proxy:
+    name: 代理
+    bookmarkTab: 帮助
+
+passwords:
+  serviceTabs:
+    管理:
+      password: lq2007
+  bookmarkTabs:
+    帮助:
+      password: lq2007
+```
+
 - [ ] 在页面添加书签
 - [ ] 备忘录
