@@ -746,5 +746,12 @@
         "physicalRelease": "Physical release",
         "inCinemas": "In cinemas",
         "digitalRelease": "Digital release"
+    },
+    "__other": {
+        "ok": "确定",
+        "cancel": "取消",
+        "password": "密码",
+        "inputPassword": "请输入密码",
+        "passwordError": "密码错误"
     }
 }

@@ -20,7 +20,6 @@ import { ColorContext } from "utils/contexts/color";
 import { SettingsContext } from "utils/contexts/settings";
 import { TabContext } from "utils/contexts/tab";
 import { ThemeContext } from "utils/contexts/theme";
-import { BookmarkContext } from "utils/contexts/bookmark";
 import SublistDialog from "components/bookmarks/sublistDialog";
 
 import { bookmarksResponse, servicesResponse, widgetsResponse } from "utils/config/api-response";
@@ -206,7 +205,6 @@ function Home({ initialSettings }) {
   const { settings, setSettings } = useContext(SettingsContext);
   const { activeTab, setActiveTab, activeBookmarkTab, setActiveBookmarkTab } = useContext(TabContext);
   const { asPath } = useRouter();
-  const { bookmark, isSublistDialogShow } = useContext(BookmarkContext)
 
   useEffect(() => {
     setSettings(initialSettings);

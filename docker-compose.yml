@@ -1,0 +1,32 @@
+services:
+  # https://gethomepage.dev/
+  # https://github.com/gethomepage/homepage
+  # port: 3000
+  homepage:
+    build:
+      context: ./ # 构建上下文，通常是包含 Dockerfile 的目录
+      dockerfile: Dockerfile # 指定 Dockerfile 文件名（如果不在根目录或不是默认名称）
+      # 可选：传递构建参数
+      args:
+        CI: "true"
+        BUILDTIME: "${BUILDTIME:-$(date -u +'%Y-%m-%dT%H:%M:%SZ')}" # 使用环境变量或默认值
+        VERSION: "${VERSION:-v1.4.1-lq}" # 使用环境变量或默认值
+        REVISION: "${REVISION:-$(git rev-parse --short HEAD)}" # 使用环境变量或默认值
+    # 如果你希望构建后给镜像打个标签，可以指定
+    image: homepage:v1.4.1-lq
+    container_name: homepage
+    volumes:
+      - /docker-data/homepage/config:/app/config
+      - /docker-data/homepage/icons:/app/public/icons
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      HOMEPAGE_ALLOWED_HOSTS: "my.luqion.cn"
+      PUID: 1000
+      PGID: 1000
+    restart: always
+    networks:
+      - www
+
+networks:
+  www:
+    name: www

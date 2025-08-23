@@ -1105,5 +1105,12 @@
         "arrayFree": "Array Free",
         "poolUsed": "{{pool}} Used",
         "poolFree": "{{pool}} Free"
+    },
+    "__other": {
+        "ok": "OK",
+        "cancel": "Cancel",
+        "password": "Password",
+        "inputPassword": "Please input password",
+        "passwordError": "Password error"
     }
 }
