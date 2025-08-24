@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import { useContext, useState } from "react";
 import { TabContext } from "utils/contexts/tab";
+
 import PasswordPrompt from "./PasswordPrompt";
 
 function slugify(tabName) {
