@@ -50,7 +50,7 @@ layout:
     name: 代理
     bookmarkTab: 帮助
 
-passwords:
+tabs:
   serviceTabs:
     管理:
       password: lq2007

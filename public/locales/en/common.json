@@ -1107,10 +1107,23 @@
         "poolFree": "{{pool}} Free"
     },
     "__other": {
-        "ok": "OK",
-        "cancel": "Cancel",
-        "password": "Password",
-        "inputPassword": "Please input password",
-        "passwordError": "Password error"
+        "tab_password": {
+            "ok": "OK",
+            "cancel": "Cancel",
+            "password": "Password",
+            "inputPassword": "Please input password",
+            "passwordError": "Password error"
+        }, 
+        "manage": {
+            "manage": "Manage",
+            "service": "Service",
+            "bookmark": "Bookmark",
+            "tab": "Tab",
+            "add": "Add",
+            "edit": "Edit",
+            "delete": "Delete",
+            "save": "Save",
+            "cancel": "Cancel"
+        }
     }
 }

@@ -119,15 +119,15 @@ export function getSettings() {
   const fileContents = substituteEnvironmentVars(rawFileContents);
   const initialSettings = yaml.load(fileContents) ?? {};
 
-  if (initialSettings.passwords && !tabPasswords.loaded) {
-    if (initialSettings.passwords.bookmarkTabs) {
-      Object.keys(initialSettings.passwords.bookmarkTabs).forEach((name) => {
-        tabPasswords.bookmarkTabs.set(name, initialSettings.passwords.bookmarkTabs[name].password);
+  if (initialSettings.tabs && !tabPasswords.loaded) {
+    if (initialSettings.tabs.bookmarkTabs) {
+      Object.keys(initialSettings.tabs.bookmarkTabs).forEach((name) => {
+        tabPasswords.bookmarkTabs.set(name, initialSettings.tabs.bookmarkTabs[name].password);
       });
     }
-    if (initialSettings.passwords.serviceTabs) {
-      Object.keys(initialSettings.passwords.serviceTabs).forEach((name) => {
-        tabPasswords.serviceTabs.set(name, initialSettings.passwords.serviceTabs[name].password);
+    if (initialSettings.tabs.serviceTabs) {
+      Object.keys(initialSettings.tabs.serviceTabs).forEach((name) => {
+        tabPasswords.serviceTabs.set(name, initialSettings.tabs.serviceTabs[name].password);
       });
     }
   }

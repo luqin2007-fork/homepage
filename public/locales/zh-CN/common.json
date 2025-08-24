@@ -748,10 +748,23 @@
         "digitalRelease": "Digital release"
     },
     "__other": {
-        "ok": "确定",
-        "cancel": "取消",
-        "password": "密码",
-        "inputPassword": "请输入密码",
-        "passwordError": "密码错误"
+        "tab_password": {
+            "ok": "确定",
+            "cancel": "取消",
+            "password": "密码",
+            "inputPassword": "请输入密码",
+            "passwordError": "密码错误"
+        },
+        "manage": {
+            "manage": "管理",
+            "service": "服务",
+            "bookmark": "书签",
+            "tab": "标签页",
+            "add": "添加",
+            "edit": "编辑",
+            "delete": "删除",
+            "save": "保存",
+            "cancel": "取消"
+        }
     }
 }
