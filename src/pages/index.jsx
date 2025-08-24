@@ -411,7 +411,7 @@ function Home({ initialSettings }) {
           </div>
         )}
         {layoutBookmarkGroups.length > 0 && (
-          <div key="layoutGroups" id="layout-groups" className="flex flex-wrap m-4 sm:m-8 sm:mt-4 items-start mb-2">
+          <div key="bookmarkLayoutGroups" id="bookmark-layout-groups" className="flex flex-wrap m-4 sm:m-8 sm:mt-4 items-start mb-2">
             {layoutBookmarkGroups.map((group) =>
               group.services ? (
                 <ServicesGroup
