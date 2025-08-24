@@ -22,13 +22,13 @@ import { TabContext } from "utils/contexts/tab";
 import { ThemeContext } from "utils/contexts/theme";
 import SublistDialog from "components/bookmarks/sublistDialog";
 import PasswordPrompt from "components/passwordPrompt";
+import Manage from "components/toggles/manage";
 
 import { bookmarksResponse, servicesResponse, widgetsResponse } from "utils/config/api-response";
 import { getSettings } from "utils/config/config";
 import useWindowFocus from "utils/hooks/window-focus";
 import createLogger from "utils/logger";
 import themes from "utils/styles/themes";
-import Manage from "components/toggles/manage";
 
 const ThemeToggle = dynamic(() => import("components/toggles/theme"), {
   ssr: false,
