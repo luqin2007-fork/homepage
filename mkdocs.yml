@@ -165,10 +165,12 @@ nav:
           - widgets/services/tubearchivist.md
           - widgets/services/unifi-controller.md
           - widgets/services/unmanic.md
+          - widgets/services/unraid.md
           - widgets/services/uptime-kuma.md
           - widgets/services/uptimerobot.md
           - widgets/services/urbackup.md
           - widgets/services/vikunja.md
+          - widgets/services/wallos.md
           - widgets/services/watchtower.md
           - widgets/services/wgeasy.md
           - widgets/services/whatsupdocker.md
