@@ -55,3 +55,4 @@ site*/
 
 scripts
 pnpm-lock.yaml
+docker-compose.yml
