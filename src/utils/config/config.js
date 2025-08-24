@@ -81,9 +81,10 @@ export function substituteEnvironmentVars(str) {
 }
 
 // 标签密码
-const tabPasswords = {
+const passwords = {
   bookmarkTabs: new Map(),
   serviceTabs: new Map(),
+  managePassword: null,
   loaded: false,
 };
 
@@ -93,10 +94,10 @@ const tabPasswords = {
  * @returns {string | null}
  */
 export function getTabPassword(type, tabName) {
-  if (!tabPasswords.loaded) {
+  if (!passwords.loaded) {
     getSettings();
   }
-  return tabPasswords[type].get(tabName) || null;
+  return passwords[type].get(tabName) || null;
 }
 
 /**
@@ -105,10 +106,17 @@ export function getTabPassword(type, tabName) {
  * @returns {boolean}
  */
 export function hasTabPassword(type, tabName) {
-  if (!tabPasswords.loaded) {
+  if (!passwords.loaded) {
     getSettings();
   }
-  return tabPasswords[type].has(tabName);
+  return passwords[type].has(tabName);
+}
+
+export function getManagePassword() {
+  if (!passwords.loaded) {
+    getSettings();
+  }
+  return passwords.managePassword;
 }
 
 export function getSettings() {
@@ -119,19 +127,20 @@ export function getSettings() {
   const fileContents = substituteEnvironmentVars(rawFileContents);
   const initialSettings = yaml.load(fileContents) ?? {};
 
-  if (initialSettings.tabs && !tabPasswords.loaded) {
+  if (initialSettings.tabs && !passwords.loaded) {
     if (initialSettings.tabs.bookmarkTabs) {
       Object.keys(initialSettings.tabs.bookmarkTabs).forEach((name) => {
-        tabPasswords.bookmarkTabs.set(name, initialSettings.tabs.bookmarkTabs[name].password);
+        passwords.bookmarkTabs.set(name, initialSettings.tabs.bookmarkTabs[name].password);
       });
     }
     if (initialSettings.tabs.serviceTabs) {
       Object.keys(initialSettings.tabs.serviceTabs).forEach((name) => {
-        tabPasswords.serviceTabs.set(name, initialSettings.tabs.serviceTabs[name].password);
+        passwords.serviceTabs.set(name, initialSettings.tabs.serviceTabs[name].password);
       });
     }
   }
-  tabPasswords.loaded = true;
+  passwords.managePassword = initialSettings.managePassword || null;
+  passwords.loaded = true;
 
   if (initialSettings.layout) {
     // support yaml list but old spec was object so convert to that

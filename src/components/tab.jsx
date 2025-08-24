@@ -2,7 +2,7 @@ import classNames from "classnames";
 import { useContext, useState } from "react";
 import { TabContext } from "utils/contexts/tab";
 
-import PasswordPrompt from "./PasswordPrompt";
+import PasswordPrompt from "./passwordPrompt";
 
 function slugify(tabName) {
   return tabName.toString().replace(/\s+/g, "-").toLowerCase();
@@ -21,11 +21,18 @@ export default function Tab({ tab, isBookmarkTab }) {
 
   const _setActiveTab = () => {
     if (isBookmarkTab) {
-        setActiveBookmarkTab(slugifyAndEncode(tab));
-      } else {
-        setActiveTab(slugifyAndEncode(tab));
-        window.location.hash = `#${slugifyAndEncode(tab)}`;
-      }
+      setActiveBookmarkTab(slugifyAndEncode(tab));
+    } else {
+      setActiveTab(slugifyAndEncode(tab));
+      window.location.hash = `#${slugifyAndEncode(tab)}`;
+    }
+  }
+
+  const onVerify = async (password) => {
+    const type = isBookmarkTab ? "bookmarkTabs" : "serviceTabs";
+    const res = await fetch(`/api/config/validateTab?type=${type}&tab=${slugifyAndEncode(tab)}&password=${password}`);
+    const result = (await res.json()).result;
+    return result;
   }
 
   const handleTabClick = async () => {
@@ -63,10 +70,10 @@ export default function Tab({ tab, isBookmarkTab }) {
       </li>
       {showPasswordPrompt && (
         <PasswordPrompt
-          type={isBookmarkTab ? "bookmarkTabs" : "serviceTabs"}
-          tab={slugifyAndEncode(tab)}
+          onVerify={onVerify}
           onClose={() => setShowPasswordPrompt(false)}
           onSuccess={_setActiveTab}
+          isShow={showPasswordPrompt}
         />
       )}
     </>

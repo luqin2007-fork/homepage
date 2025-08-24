@@ -1,7 +1,8 @@
+import classNames from "classnames";
 import { useState } from 'react';
 import { useTranslation } from "next-i18next";
 
-export default function PasswordPrompt({ type, tab, onClose, onSuccess }) {
+export default function PasswordPrompt({ onVerify, onClose, onSuccess, isShow }) {
   const { t } = useTranslation();
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -14,16 +15,8 @@ export default function PasswordPrompt({ type, tab, onClose, onSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!password.trim()) {
-      setError(t('__other.tab_password.inputPassword'));
-      return;
-    }
-
     try {
-      const res = await fetch(`/api/config/validateTab?type=${type}&tab=${tab}&password=${password}`);
-      const result = (await res.json()).result;
-      console.log(result)
-
+      const result = await onVerify(password);
       if (result) {
         _onClose();
         onSuccess();
@@ -37,7 +30,12 @@ export default function PasswordPrompt({ type, tab, onClose, onSuccess }) {
 
   return (
     <div
-      className="relative z-40 ease-in-out duration-300 transition-opacity"
+      className={classNames(
+        "relative z-40 ease-in-out duration-300 transition-opacity",
+        !isShow && "hidden",
+        isShow && "opacity-100",
+        !isShow && "opacity-0",
+      )}
       role="dialog"
       aria-modal="true"
     >
@@ -89,11 +87,5 @@ export default function PasswordPrompt({ type, tab, onClose, onSuccess }) {
         </div>
       </div>
     </div>
-
-
-
-    // <div className="fixed inset-0 flex items-center justify-center z-50 text-theme-700 dark:text-theme-200">
-
-    // </div>
   );
 }
