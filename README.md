@@ -59,5 +59,23 @@ tabs:
       password: lq2007
 ```
 
+- [x] 切换局域网模式与网络模式
+
+在 `services.yaml` 中可以指定一个在局域网中访问的地址，如：
+
+```yaml
+  - OpenHands:
+      href: https://openhands.luqion.cn
+      icon: https://openhands.luqion.cn/favicon.ico
+      localHref: http://192.168.1.170:18026
+      localIcon: http://192.168.1.170:18026/favicon.ico
+```
+
+可通过左下角
+
+![](images/QQ20250904-114936.png)
+
+按钮切换
+
 - [ ] 在页面添加书签
 - [ ] 备忘录

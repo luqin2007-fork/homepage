@@ -23,6 +23,7 @@ import { ThemeContext } from "utils/contexts/theme";
 import SublistDialog from "components/bookmarks/sublistDialog";
 import PasswordPrompt from "components/passwordPrompt";
 import Manage from "components/toggles/manage";
+import LocalMode from "components/toggles/localmode";
 
 import { bookmarksResponse, servicesResponse, widgetsResponse } from "utils/config/api-response";
 import { getSettings } from "utils/config/config";
@@ -562,6 +563,7 @@ function Home({ initialSettings }) {
         <div id="footer" className="flex flex-col mt-auto p-8 w-full">
           <div id="style" className="flex w-full justify-end">
             <Manage setManageDialogShow={setShowPasswordPrompt} />
+            <LocalMode />
             {!settings?.color && <ColorToggle />}
             <Revalidate />
             {!settings.theme && <ThemeToggle />}

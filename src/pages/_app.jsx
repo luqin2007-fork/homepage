@@ -10,6 +10,7 @@ import { SettingsProvider } from "utils/contexts/settings";
 import { TabProvider } from "utils/contexts/tab";
 import { ThemeProvider } from "utils/contexts/theme";
 import { BookmarkProvider } from "utils/contexts/bookmark";
+import { LocalModeProvider } from "utils/contexts/localmode";
 
 import nextI18nextConfig from "../../next-i18next.config";
 
@@ -87,7 +88,9 @@ function MyApp({ Component, pageProps }) {
           <SettingsProvider>
             <TabProvider>
               <BookmarkProvider>
-                <Component {...pageProps} />
+                <LocalModeProvider>
+                  <Component {...pageProps} />
+                </LocalModeProvider>
               </BookmarkProvider>
             </TabProvider>
           </SettingsProvider>

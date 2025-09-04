@@ -1125,6 +1125,10 @@
             "delete": "Delete",
             "save": "Save",
             "cancel": "Cancel"
+        },
+        "localMode": {
+            "localMode": "Current: Local Mode",
+            "webMode": "Current: Web Mode"
         }
     }
 }

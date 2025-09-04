@@ -1,7 +1,8 @@
 import classNames from "classnames";
 import ResolvedIcon from "components/resolvedicon";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { SettingsContext } from "utils/contexts/settings";
+import { LocalModeContext } from "utils/contexts/localmode";
 import Docker from "widgets/docker/component";
 import Kubernetes from "widgets/kubernetes/component";
 import ProxmoxVM from "widgets/proxmoxvm/component";
@@ -14,7 +15,11 @@ import Status from "./status";
 import Widget from "./widget";
 
 export default function Item({ service, groupName, useEqualHeights }) {
-  const hasLink = service.href && service.href !== "#";
+  const { localMode } = useContext(LocalModeContext);
+  const tabLink = useMemo(() => (localMode && service.localHref) ? service.localHref : service.href, [localMode, service]);
+  const tabIcon = useMemo(() => (localMode && service.localIcon) ? service.localIcon : service.icon, [localMode, service]);
+  const tabWidgets = useMemo(() => (localMode && service.localWidgets) ? service.localWidgets : service.widgets, [localMode, service]);
+  const hasLink = useMemo(() => tabLink && tabLink !== "#", [tabLink]);
   const { settings } = useContext(SettingsContext);
   const showStats = service.showStats === false ? false : settings.showStats;
   const statusStyle = service.statusStyle !== undefined ? service.statusStyle : settings.statusStyle;
@@ -45,23 +50,23 @@ export default function Item({ service, groupName, useEqualHeights }) {
           {service.icon &&
             (hasLink ? (
               <a
-                href={service.href}
+                href={tabLink}
                 target={service.target ?? settings.target ?? "_blank"}
                 rel="noreferrer"
                 className="shrink-0 flex items-center justify-center w-12 service-icon z-10"
-                aria-label={service.icon}
+                aria-label={tabIcon}
               >
-                <ResolvedIcon icon={service.icon} />
+                <ResolvedIcon icon={tabIcon} />
               </a>
             ) : (
               <div className="shrink-0 flex items-center justify-center w-12 service-icon z-10">
-                <ResolvedIcon icon={service.icon} />
+                <ResolvedIcon icon={tabIcon} />
               </div>
             ))}
 
           {hasLink ? (
             <a
-              href={service.href}
+              href={tabLink}
               target={service.target ?? settings.target ?? "_blank"}
               rel="noreferrer"
               className="flex-1 flex items-center justify-between rounded-r-md service-title-text"
@@ -185,7 +190,7 @@ export default function Item({ service, groupName, useEqualHeights }) {
           </div>
         )}
 
-        {service.widgets.map((widget) => (
+        {tabWidgets.map((widget) => (
           <Widget widget={widget} service={service} key={widget.index} />
         ))}
       </div>

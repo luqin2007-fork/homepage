@@ -765,6 +765,10 @@
             "delete": "删除",
             "save": "保存",
             "cancel": "取消"
+        },
+        "localMode": {
+            "localMode": "当前：局域网模式",
+            "webMode": "当前：网络模式"
         }
     }
 }
