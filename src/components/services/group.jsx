@@ -15,6 +15,7 @@ export default function ServicesGroup({
   useEqualHeights,
   groupsInitiallyCollapsed,
   isSubgroup,
+  isAuthenticated,
 }) {
   const panel = useRef();
 
@@ -83,8 +84,9 @@ export default function ServicesGroup({
                   groupName={group.name}
                   services={group.services}
                   layout={layout}
-                  useEqualHeights={useEqualHeights}
+                  useEqualHeights={layout?.useEqualHeights ?? useEqualHeights}
                   header={layout?.header !== false}
+                  isAuthenticated={isAuthenticated}
                 />
                 {group.groups?.length > 0 && (
                   <div

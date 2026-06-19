@@ -35,28 +35,69 @@ layout:
 
 ![](images/QQ20250804-182531.png)
 
-- [x] 加密 Tab
+- [x] 集成 Homepage Auth，支持细粒度权限控制
 
-在 `settings.yaml` 中添加 `passwords` 属性即可。
+基于上游 Homepage Auth（NextAuth.js），扩展了 `protected` 属性支持，允许未登录用户浏览页面，受保护内容对匿名用户隐藏。
 
-**注意，密码不会隐藏从服务器获取的 `bookmarks.yaml` 或 `service.yaml` 中的内容**
+**环境变量：**
+```bash
+HOMEPAGE_AUTH_ENABLED=true
+HOMEPAGE_AUTH_ALLOW_ANONYMOUS=true   # 允许匿名浏览页面
+HOMEPAGE_AUTH_SECRET=your-secret
+HOMEPAGE_AUTH_PASSWORD=your-password
+```
+
+**Tab 级别保护：**
+```yaml
+layout:
+  _s_manager:
+    tab: 管理
+    protected: true     # 整个 Tab 需要登录
+```
+
+**Service/Bookmark 级别保护：**
+```yaml
+# services.yaml
+- _s_web:
+  - qBittorrentEE:
+      href: https://qbit.luqion.cn
+      icon: qbittorrent
+  - Mihomo:
+      href: https://mihomo.luqion.cn
+      icon: clash
+      protected: true   # 单个 Service 需要登录
+```
+
+```yaml
+# bookmarks.yaml
+- _b_help_app:
+  - Homepage:
+      href: https://gethomepage.dev
+  - 内部文档:
+      href: https://docs.internal.example.com/
+      protected: true   # 单个 Bookmark 需要登录
+```
+
+**Docker 标签支持：**
+```yaml
+# 全局生效
+labels:
+  homepage.protected: "true"
+
+# 仅指定实例生效
+labels:
+  homepage.instance.myinstance.protected: "true"
+```
+
+- [x] Tab 自动隐藏（autohide）
+
+当 Tab 下没有可见的 Service/Bookmark 时自动隐藏该 Tab。
 
 ```yaml
 layout:
-  fullWidth: true
-  _s_manager:
-    tab: 管理
-  _b_help_proxy:
-    name: 代理
-    bookmarkTab: 帮助
-
-tabs:
-  serviceTabs:
-    管理:
-      password: lq2007
-  bookmarkTabs:
-    帮助:
-      password: lq2007
+  _s_project:
+    tab: 项目
+    autohide: true    # 无可见内容时隐藏
 ```
 
 - [x] 切换局域网模式与网络模式

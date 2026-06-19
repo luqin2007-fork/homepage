@@ -13,6 +13,7 @@ export default function BookmarksGroup({
   groupsInitiallyCollapsed,
   bookmarksStyle,
   maxGroupColumns,
+  isAuthenticated,
 }) {
   const panel = useRef();
 
@@ -73,7 +74,7 @@ export default function BookmarksGroup({
             >
               <Disclosure.Panel className="transition-all overflow-hidden duration-300 ease-out" ref={panel} static>
                 <ErrorBoundary>
-                  <List bookmarks={bookmarks.bookmarks} layout={layout} bookmarksStyle={bookmarksStyle} />
+                  <List bookmarks={bookmarks.bookmarks} layout={layout} bookmarksStyle={bookmarksStyle} isAuthenticated={isAuthenticated} />
                 </ErrorBoundary>
               </Disclosure.Panel>
             </Transition>

@@ -14,7 +14,11 @@ export default function SignIn({ providers, settings }) {
   const title = settings?.title || "Homepage";
   const callbackUrl = useMemo(() => {
     const value = router.query?.callbackUrl;
-    return typeof value === "string" ? value : "/";
+    const path = typeof value === "string" ? value : "/";
+    if (typeof window !== "undefined") {
+      return `${window.location.origin}${path.startsWith("/") ? path : `/${path}`}`;
+    }
+    return path;
   }, [router.query?.callbackUrl]);
   const error = router.query?.error;
 
@@ -148,11 +152,18 @@ export default function SignIn({ providers, settings }) {
                       className="space-y-3"
                       onSubmit={async (event) => {
                         event.preventDefault();
-                        await signIn(passwordProvider?.id ?? "credentials", {
-                          redirect: true,
-                          callbackUrl,
+                        const result = await signIn(passwordProvider?.id ?? "credentials", {
+                          redirect: false,
                           password,
                         });
+                        if (result?.ok) {
+                          window.location.href = callbackUrl;
+                        } else if (result?.error) {
+                          router.replace({
+                            pathname: "/auth/signin",
+                            query: { ...router.query, error: result.error },
+                          });
+                        }
                       }}
                     >
                       <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">Password</label>

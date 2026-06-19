@@ -234,6 +234,7 @@ export function cleanServiceGroups(groups) {
     services: serviceGroup.services.map((service) => {
       const cleanedService = { ...service };
       if (cleanedService.showStats !== undefined) cleanedService.showStats = JSON.parse(cleanedService.showStats);
+      if (cleanedService.protected !== undefined) cleanedService.protected = cleanedService.protected === true || cleanedService.protected === "true";
       if (typeof service.weight === "string") {
         const weight = parseInt(service.weight, 10);
         if (Number.isNaN(weight)) {

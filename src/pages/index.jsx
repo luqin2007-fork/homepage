@@ -292,29 +292,71 @@ function Home({ initialSettings }) {
     };
   }, [settings.layout]);
 
-  const tabs = useMemo(
-    () => [
+  const tabs = useMemo(() => {
+    const allTabs = [
       ...new Set(
         Object.keys(settings.layout ?? {})
           .map((groupName) => settings.layout[groupName]?.tab?.toString())
           .filter((group) => group)
           .filter((tab) => !isTabProtected(tab, false) || isAuthenticated),
       ),
-    ],
-    [settings.layout, isTabProtected, isAuthenticated],
-  );
+    ];
+    
+    return allTabs.filter((tab) => {
+      const hasAutohide = Object.values(settings.layout ?? {}).some(
+        (g) => g?.tab?.toString() === tab && g?.autohide
+      );
+      if (!hasAutohide) return true;
+      
+      return Object.keys(settings.layout ?? {}).some((groupName) => {
+        const layoutItem = settings.layout[groupName];
+        if (layoutItem?.tab?.toString() !== tab) return false;
+        if (layoutItem.protected && !isAuthenticated) return false;
+        const group = services?.find((g) => g.name === groupName) ?? bookmarks?.find((b) => b.name === groupName);
+        if (!group) return false;
+        if (group.services) {
+          return group.services.some((s) => !s.protected || isAuthenticated);
+        }
+        if (group.bookmarks) {
+          return group.bookmarks.some((b) => !b.protected || isAuthenticated);
+        }
+        return true;
+      });
+    });
+  }, [settings.layout, isTabProtected, isAuthenticated, services, bookmarks]);
 
-  const bookmarkTabs = useMemo(
-    () => [
+  const bookmarkTabs = useMemo(() => {
+    const allTabs = [
       ...new Set(
         Object.keys(settings.layout ?? {})
           .map((groupName) => settings.layout[groupName]?.bookmarkTab?.toString())
           .filter((group) => group)
           .filter((tab) => !isTabProtected(tab, true) || isAuthenticated),
       ),
-    ],
-    [settings.layout, isTabProtected, isAuthenticated],
-  );
+    ];
+    
+    return allTabs.filter((tab) => {
+      const hasAutohide = Object.values(settings.layout ?? {}).some(
+        (g) => g?.bookmarkTab?.toString() === tab && g?.autohide
+      );
+      if (!hasAutohide) return true;
+      
+      return Object.keys(settings.layout ?? {}).some((groupName) => {
+        const layoutItem = settings.layout[groupName];
+        if (layoutItem?.bookmarkTab?.toString() !== tab) return false;
+        if (layoutItem.protected && !isAuthenticated) return false;
+        const group = services?.find((g) => g.name === groupName) ?? bookmarks?.find((b) => b.name === groupName);
+        if (!group) return false;
+        if (group.services) {
+          return group.services.some((s) => !s.protected || isAuthenticated);
+        }
+        if (group.bookmarks) {
+          return group.bookmarks.some((b) => !b.protected || isAuthenticated);
+        }
+        return true;
+      });
+    });
+  }, [settings.layout, isTabProtected, isAuthenticated, services, bookmarks]);
 
   useEffect(() => {
     if (!activeTab) {
@@ -327,27 +369,32 @@ function Home({ initialSettings }) {
   }, [activeTab, activeBookmarkTab, asPath, tabs, bookmarkTabs, setActiveTab, setActiveBookmarkTab]);
 
   const servicesAndBookmarksGroups = useMemo(() => {
+    const isGroupProtected = (groupName) => settings.layout?.[groupName]?.protected === true;
+    
     const tabGroupFilter = (g) => g && [activeTab, ""].includes(slugifyAndEncode(settings.layout?.[g.name]?.tab));
     const tabBookmarkGroupFilter = (g) => g && [activeBookmarkTab].includes(slugifyAndEncode(settings.layout?.[g.name]?.bookmarkTab));
     const undefinedGroupFilter = (g) => settings.layout?.[g.name] === undefined;
     const undefinedBookmarkGroupFilter = (g) => settings?.layout?.[g.name]?.bookmarkTab === undefined;
+    const protectedFilter = (g) => !isGroupProtected(g.name) || isAuthenticated;
 
     const layoutGroups = Object.keys(settings.layout ?? {})
       .map((groupName) => services?.find((g) => g.name === groupName) ?? bookmarks?.find((b) => b.name === groupName))
       .filter(tabGroupFilter)
-      .filter(undefinedBookmarkGroupFilter);
+      .filter(undefinedBookmarkGroupFilter)
+      .filter(protectedFilter);
 
     const layoutBookmarkGroups = Object.keys(settings.layout ?? {})
       .map((groupName) => services?.find((g) => g.name === groupName) ?? bookmarks?.find((b) => b.name === groupName))
-      .filter(tabBookmarkGroupFilter);
+      .filter(tabBookmarkGroupFilter)
+      .filter(protectedFilter);
 
     if (!settings.layout && JSON.stringify(settings.layout) !== JSON.stringify(initialSettings.layout)) {
       // wait for settings to populate (if different from initial settings), otherwise all the widgets will be requested initially even if we are on a single tab
       return <div />;
     }
 
-    const serviceGroups = services?.filter(tabGroupFilter).filter(undefinedGroupFilter);
-    const bookmarkGroups = bookmarks.filter(tabGroupFilter).filter(undefinedGroupFilter);
+    const serviceGroups = services?.filter(tabGroupFilter).filter(undefinedGroupFilter).filter(protectedFilter);
+    const bookmarkGroups = bookmarks.filter(tabGroupFilter).filter(undefinedGroupFilter).filter(protectedFilter);
 
     return (
       <>
@@ -381,6 +428,7 @@ function Home({ initialSettings }) {
                   disableCollapse={settings.disableCollapse}
                   useEqualHeights={settings.useEqualHeights}
                   groupsInitiallyCollapsed={settings.groupsInitiallyCollapsed}
+                  isAuthenticated={isAuthenticated}
                 />
               ) : (
                 <BookmarksGroup
@@ -405,6 +453,7 @@ function Home({ initialSettings }) {
                 maxGroupColumns={settings.fiveColumns ? 5 : settings.maxGroupColumns}
                 disableCollapse={settings.disableCollapse}
                 groupsInitiallyCollapsed={settings.groupsInitiallyCollapsed}
+                isAuthenticated={isAuthenticated}
               />
             ))}
           </div>
@@ -420,6 +469,7 @@ function Home({ initialSettings }) {
                 maxGroupColumns={settings.maxBookmarkGroupColumns ?? settings.maxGroupColumns}
                 groupsInitiallyCollapsed={settings.groupsInitiallyCollapsed}
                 bookmarksStyle={settings.bookmarksStyle}
+                isAuthenticated={isAuthenticated}
               />
             ))}
           </div>
@@ -454,6 +504,7 @@ function Home({ initialSettings }) {
                   disableCollapse={settings.disableCollapse}
                   useEqualHeights={settings.useEqualHeights}
                   groupsInitiallyCollapsed={settings.groupsInitiallyCollapsed}
+                  isAuthenticated={isAuthenticated}
                 />
               ) : (
                 <BookmarksGroup
@@ -463,6 +514,7 @@ function Home({ initialSettings }) {
                   disableCollapse={settings.disableCollapse}
                   maxGroupColumns={settings.maxBookmarkGroupColumns ?? settings.maxGroupColumns}
                   groupsInitiallyCollapsed={settings.groupsInitiallyCollapsed}
+                  isAuthenticated={isAuthenticated}
                 />
               ),
             )}
@@ -477,6 +529,7 @@ function Home({ initialSettings }) {
     bookmarkTabs,
     services,
     bookmarks,
+    isAuthenticated,
     settings.layout,
     settings.fiveColumns,
     settings.maxGroupColumns,

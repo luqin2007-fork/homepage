@@ -3,7 +3,9 @@ import Item from "components/services/item";
 
 import { columnMap } from "../../utils/layout/columns";
 
-export default function List({ groupName, services, layout, useEqualHeights, header }) {
+export default function List({ groupName, services, layout, useEqualHeights, header, isAuthenticated }) {
+  const filteredServices = services.filter((service) => !service.protected || isAuthenticated);
+  
   return (
     <ul
       className={classNames(
@@ -12,7 +14,7 @@ export default function List({ groupName, services, layout, useEqualHeights, hea
         "services-list",
       )}
     >
-      {services.map((service) => (
+      {filteredServices.map((service) => (
         <Item
           key={[service.container, service.app, service.name].filter((s) => s).join("-")}
           service={service}

@@ -1,0 +1,26 @@
+services:
+  homepage:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        CI: "true"
+        BUILDTIME: ${BUILDTIME:-$(date -u +'%Y-%m-%dT%H:%M:%SZ')}
+        VERSION: ${VERSION:-v1.4.6-lq-auth}
+        REVISION: ${REVISION:-$(git rev-parse --short HEAD)}
+    image: homepage:v1.4.6-lq-auth
+    container_name: homepage-test
+    volumes:
+      - ./config:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      HOMEPAGE_ALLOWED_HOSTS: "www.luqion.cn,localhost:18039"
+      HOMEPAGE_AUTH_ENABLED: "true"
+      HOMEPAGE_AUTH_ALLOW_ANONYMOUS: "true"
+      HOMEPAGE_AUTH_SECRET: "homepage-test-secret-key-2026"
+      HOMEPAGE_AUTH_PASSWORD: "lq2007"
+      PUID: 1000
+      PGID: 1000
+    ports:
+      - 18039:3000
+    restart: unless-stopped
