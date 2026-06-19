@@ -2,7 +2,7 @@ import { createContext, useMemo, useState } from "react";
 
 export const BookmarkContext = createContext();
 
-export function BookmarkProvider({ initial, children }) {
+export function BookmarkProvider({ children }) {
     const [bookmark, setBookmark] = useState(false);
     const [isSublistDialogShow, setSublistDialogShow] = useState(false);
 

@@ -2,6 +2,7 @@ import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 
 const authEnabled = Boolean(process.env.HOMEPAGE_AUTH_ENABLED);
+const authAllowAnonymous = Boolean(process.env.HOMEPAGE_AUTH_ALLOW_ANONYMOUS);
 const authSecret = process.env.NEXTAUTH_SECRET || process.env.HOMEPAGE_AUTH_SECRET;
 
 export async function middleware(req) {
@@ -20,7 +21,7 @@ export async function middleware(req) {
     return NextResponse.json({ error: "Host validation failed. See logs for more details." }, { status: 400 });
   }
 
-  if (authEnabled && !new URL(req.url).pathname.startsWith("/api/healthcheck")) {
+  if (authEnabled && !authAllowAnonymous && !new URL(req.url).pathname.startsWith("/api/healthcheck")) {
     const token = await getToken({ req, secret: authSecret });
     if (!token) {
       const signInUrl = new URL("/auth/signin", req.url);

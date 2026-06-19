@@ -79,45 +79,6 @@ export function substituteEnvironmentVars(str) {
   return result;
 }
 
-// 标签密码
-const passwords = {
-  bookmarkTabs: new Map(),
-  serviceTabs: new Map(),
-  managePassword: null,
-  loaded: false,
-};
-
-/**
- * @param {'bookmarkTabs' | 'serviceTabs'} type 
- * @param {string} tabName 
- * @returns {string | null}
- */
-export function getTabPassword(type, tabName) {
-  if (!passwords.loaded) {
-    getSettings();
-  }
-  return passwords[type].get(tabName) || null;
-}
-
-/**
- * @param {'bookmarkTabs' | 'serviceTabs'} type 
- * @param {string} tabName 
- * @returns {boolean}
- */
-export function hasTabPassword(type, tabName) {
-  if (!passwords.loaded) {
-    getSettings();
-  }
-  return passwords[type].has(tabName);
-}
-
-export function getManagePassword() {
-  if (!passwords.loaded) {
-    getSettings();
-  }
-  return passwords.managePassword;
-}
-
 export function getSettings() {
   checkAndCopyConfig("settings.yaml");
 
@@ -125,21 +86,6 @@ export function getSettings() {
   const rawFileContents = readFileSync(settingsYaml, "utf8");
   const fileContents = substituteEnvironmentVars(rawFileContents);
   const initialSettings = yaml.load(fileContents) ?? {};
-
-  if (initialSettings.tabs && !passwords.loaded) {
-    if (initialSettings.tabs.bookmarkTabs) {
-      Object.keys(initialSettings.tabs.bookmarkTabs).forEach((name) => {
-        passwords.bookmarkTabs.set(name, initialSettings.tabs.bookmarkTabs[name].password);
-      });
-    }
-    if (initialSettings.tabs.serviceTabs) {
-      Object.keys(initialSettings.tabs.serviceTabs).forEach((name) => {
-        passwords.serviceTabs.set(name, initialSettings.tabs.serviceTabs[name].password);
-      });
-    }
-  }
-  passwords.managePassword = initialSettings.managePassword || null;
-  passwords.loaded = true;
 
   if (initialSettings.layout) {
     // support yaml list but old spec was object so convert to that

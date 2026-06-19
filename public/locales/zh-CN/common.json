@@ -748,13 +748,6 @@
         "digitalRelease": "Digital release"
     },
     "__other": {
-        "tab_password": {
-            "ok": "确定",
-            "cancel": "取消",
-            "password": "密码",
-            "inputPassword": "请输入密码",
-            "passwordError": "密码错误"
-        },
         "manage": {
             "manage": "管理",
             "service": "服务",

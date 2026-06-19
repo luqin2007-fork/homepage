@@ -16,12 +16,12 @@ import Script from "next/script";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { BiError } from "react-icons/bi";
 import useSWR, { SWRConfig } from "swr";
+import { useSession } from "next-auth/react";
 import { ColorContext } from "utils/contexts/color";
 import { SettingsContext } from "utils/contexts/settings";
 import { TabContext } from "utils/contexts/tab";
 import { ThemeContext } from "utils/contexts/theme";
 import SublistDialog from "components/bookmarks/sublistDialog";
-import PasswordPrompt from "components/passwordPrompt";
 import Manage from "components/toggles/manage";
 import LocalMode from "components/toggles/localmode";
 
@@ -222,7 +222,8 @@ function Home({ initialSettings }) {
   const { settings, setSettings } = useContext(SettingsContext);
   const { activeTab, setActiveTab, activeBookmarkTab, setActiveBookmarkTab } = useContext(TabContext);
   const { asPath } = useRouter();
-  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
+  const { data: session } = useSession();
+  const isAuthenticated = Boolean(session);
 
   useEffect(() => {
     setSettings(initialSettings);
@@ -281,15 +282,26 @@ function Home({ initialSettings }) {
     };
   });
 
+  const isTabProtected = useMemo(() => {
+    const layout = settings.layout ?? {};
+    return (tabName, isBookmark) => {
+      return Object.values(layout).some((g) => {
+        const tab = isBookmark ? g?.bookmarkTab?.toString() : g?.tab?.toString();
+        return tab === tabName && g?.protected;
+      });
+    };
+  }, [settings.layout]);
+
   const tabs = useMemo(
     () => [
       ...new Set(
         Object.keys(settings.layout ?? {})
           .map((groupName) => settings.layout[groupName]?.tab?.toString())
-          .filter((group) => group),
+          .filter((group) => group)
+          .filter((tab) => !isTabProtected(tab, false) || isAuthenticated),
       ),
     ],
-    [settings.layout],
+    [settings.layout, isTabProtected, isAuthenticated],
   );
 
   const bookmarkTabs = useMemo(
@@ -297,10 +309,11 @@ function Home({ initialSettings }) {
       ...new Set(
         Object.keys(settings.layout ?? {})
           .map((groupName) => settings.layout[groupName]?.bookmarkTab?.toString())
-          .filter((group) => group),
+          .filter((group) => group)
+          .filter((tab) => !isTabProtected(tab, true) || isAuthenticated),
       ),
     ],
-    [settings.layout],
+    [settings.layout, isTabProtected, isAuthenticated],
   );
 
   useEffect(() => {
@@ -311,7 +324,7 @@ function Home({ initialSettings }) {
     if (!activeBookmarkTab) {
       setActiveBookmarkTab(slugifyAndEncode(bookmarkTabs["0"]));
     }
-  });
+  }, [activeTab, activeBookmarkTab, asPath, tabs, bookmarkTabs, setActiveTab, setActiveBookmarkTab]);
 
   const servicesAndBookmarksGroups = useMemo(() => {
     const tabGroupFilter = (g) => g && [activeTab, ""].includes(slugifyAndEncode(settings.layout?.[g.name]?.tab));
@@ -570,16 +583,9 @@ function Home({ initialSettings }) {
 
         {servicesAndBookmarksGroups}
 
-        <PasswordPrompt
-          onVerify={async (p) => (await (await fetch(`/api/manage/verifyPassword?password=${p}`)).json()).result}
-          onClose={() => setShowPasswordPrompt(false)}
-          onSuccess={() => { /* jump to manage page */ }}
-          isShow={showPasswordPrompt}
-        />
-
         <div id="footer" className="flex flex-col mt-auto p-8 w-full">
           <div id="style" className="flex w-full justify-end">
-            <Manage setManageDialogShow={setShowPasswordPrompt} />
+            <Manage />
             <LocalMode />
             {!settings?.color && <ColorToggle />}
             <Revalidate />

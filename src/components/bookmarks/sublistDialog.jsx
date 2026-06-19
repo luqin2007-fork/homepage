@@ -3,6 +3,7 @@ import ResolvedIcon from "components/resolvedicon";
 import { useContext, useEffect, useRef, useState } from 'react'
 import { BookmarkContext } from 'utils/contexts/bookmark'
 import { SettingsContext } from "utils/contexts/settings";
+import { getHost } from "utils/url";
 
 export default function SublistDialog() {
   const { bookmark, isSublistDialogShow, setSublistDialogShow } = useContext(BookmarkContext)
@@ -85,12 +86,3 @@ export default function SublistDialog() {
   );
 }
 
-function getHost(url) {
-  if (url.includes('//')) {
-    url = url.substring(url.indexOf('//') + 2);
-  }
-  if (url.includes('/')) {
-    url = url.substring(0, url.indexOf('/'));
-  }
-  return url;
-}
