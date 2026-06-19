@@ -66,6 +66,11 @@
         "wait": "Please wait",
         "empty_data": "子系統狀態未知"
     },
+    "unifi_drive": {
+        "healthy": "Healthy",
+        "degraded": "Degraded",
+        "no_data": "No storage data available"
+    },
     "docker": {
         "rx": "接收",
         "tx": "傳送",
@@ -105,6 +110,16 @@
         "movies": "電影",
         "series": "影集",
         "episodes": "集",
+        "songs": "曲目"
+    },
+    "jellyfin": {
+        "playing": "正在播放",
+        "transcoding": "轉碼",
+        "bitrate": "位元率",
+        "no_active": "無播放活動",
+        "movies": "電影",
+        "series": "系列",
+        "episodes": "劇集",
         "songs": "曲目"
     },
     "esphome": {
@@ -173,6 +188,13 @@
         "bitrate": "Bitrate",
         "no_active": "No Active Streams",
         "plex_connection_error": "檢查Plex的連線狀態"
+    },
+    "tracearr": {
+        "no_active": "No Active Streams",
+        "streams": "Streams",
+        "transcodes": "Transcodes",
+        "directplay": "Direct Play",
+        "bitrate": "Bitrate"
     },
     "omada": {
         "connectedAp": "已連線的無線網路",
@@ -272,16 +294,13 @@
         "approved": "已核准",
         "available": "可觀看"
     },
-    "jellyseerr": {
+    "seerr": {
         "pending": "Pending",
         "approved": "Approved",
-        "available": "Available"
-    },
-    "overseerr": {
-        "pending": "Pending",
-        "processing": "處理中",
-        "approved": "Approved",
-        "available": "Available"
+        "available": "Available",
+        "completed": "Completed",
+        "processing": "Processing",
+        "issues": "Open Issues"
     },
     "netalertx": {
         "total": "Total",
@@ -307,9 +326,9 @@
         "ping": "Ping"
     },
     "portainer": {
-        "running": "Running",
+        "running": "執行中",
         "stopped": "已停止",
-        "total": "Total"
+        "total": "全部"
     },
     "suwayomi": {
         "download": "Downloaded",
@@ -325,6 +344,16 @@
         "address": "位址",
         "expires": "已過期",
         "never": "未曾",
+        "user": "User",
+        "hostname": "Hostname",
+        "name": "Name",
+        "client_version": "Client Version",
+        "os": "OS",
+        "created": "Created",
+        "authorized": "Authorized",
+        "is_external": "Is External",
+        "update_available": "Update Available",
+        "tags": "Tags",
         "last_seen": "上次連線",
         "now": "現在",
         "years": "{{number}} 年",
@@ -333,7 +362,9 @@
         "hours": "{{number}} 小時",
         "minutes": "{{number}} 分鐘",
         "seconds": "{{number}} 秒",
-        "ago": "{{value}} 前"
+        "ago": "{{value}} 前",
+        "true": "Yes",
+        "false": "No"
     },
     "technitium": {
         "totalQueries": "Queries",
@@ -372,7 +403,7 @@
     "npm": {
         "enabled": "已啟用",
         "disabled": "已停用",
-        "total": "Total"
+        "total": "全部"
     },
     "coinmarketcap": {
         "configure": "請設定一個或多個欲追蹤的加密貨幣",
@@ -437,19 +468,19 @@
     },
     "glances": {
         "cpu": "CPU",
-        "load": "Load",
-        "wait": "Please wait",
-        "temp": "TEMP",
+        "load": "負載",
+        "wait": "請稍候",
+        "temp": "溫度",
         "_temp": "溫度",
         "warn": "警告",
-        "uptime": "UP",
-        "total": "Total",
-        "free": "Free",
-        "used": "Used",
-        "days": "d",
-        "hours": "h",
+        "uptime": "運作時間",
+        "total": "全部",
+        "free": "剩餘",
+        "used": "已使用",
+        "days": "日",
+        "hours": "時",
         "crit": "重大的",
-        "read": "Read",
+        "read": "已讀",
         "write": "寫入",
         "gpu": "GPU",
         "mem": "記憶體",
@@ -531,7 +562,8 @@
         "child_bridges_status": "{{ok}}/{{total}}",
         "up": "Up",
         "pending": "Pending",
-        "down": "Down"
+        "down": "Down",
+        "ok": "Ok"
     },
     "healthchecks": {
         "new": "新建",
@@ -597,6 +629,15 @@
     "paperlessngx": {
         "inbox": "收件箱",
         "total": "Total"
+    },
+    "pangolin": {
+        "orgs": "Orgs",
+        "sites": "Sites",
+        "resources": "Resources",
+        "targets": "Targets",
+        "traffic": "Traffic",
+        "in": "In",
+        "out": "Out"
     },
     "peanut": {
         "battery_charge": "充電",
@@ -694,6 +735,10 @@
         "uptime": "Uptime",
         "volumeAvailable": "Available"
     },
+    "dispatcharr": {
+        "channels": "Channels",
+        "streams": "Streams"
+    },
     "mylar": {
         "series": "Series",
         "issues": "問題",
@@ -758,7 +803,8 @@
     "ghostfolio": {
         "gross_percent_today": "Today",
         "gross_percent_1y": "一年",
-        "gross_percent_max": "所有時間"
+        "gross_percent_max": "所有時間",
+        "net_worth": "Net Worth"
     },
     "audiobookshelf": {
         "podcasts": "Podcasts",
@@ -780,6 +826,12 @@
         "authors": "作者",
         "categories": "Categories",
         "series": "Series"
+    },
+    "booklore": {
+        "libraries": "Libraries",
+        "books": "Books",
+        "reading": "Reading",
+        "finished": "Finished"
     },
     "jdownloader": {
         "downloadCount": "Queue",
@@ -883,6 +935,19 @@
     "netdata": {
         "warnings": "警告",
         "criticals": "嚴重"
+    },
+    "ntfy": {
+        "title": "Title",
+        "priority": "Priority",
+        "lastReceived": "Last Received",
+        "message": "Message",
+        "tags": "Tags",
+        "none": "None",
+        "min": "Min",
+        "low": "Low",
+        "default": "Default",
+        "high": "High",
+        "urgent": "Urgent"
     },
     "plantit": {
         "events": "事件",
@@ -1052,10 +1117,10 @@
         "sharedFiles": "Files"
     },
     "jellystat": {
-        "songs": "Songs",
-        "movies": "Movies",
-        "episodes": "Episodes",
-        "other": "Other"
+        "songs": "曲目",
+        "movies": "電影",
+        "episodes": "劇集",
+        "other": "其它"
     },
     "checkmk": {
         "serviceErrors": "Service issues",
@@ -1083,5 +1148,67 @@
         "nextMonthlyCost": "Next Month",
         "previousMonthlyCost": "Prev. Month",
         "nextRenewingSubscription": "Next Payment"
+    },
+    "unraid": {
+        "STARTED": "Started",
+        "STOPPED": "Stopped",
+        "NEW_ARRAY": "New Array",
+        "RECON_DISK": "Reconstructing Disk",
+        "DISABLE_DISK": "Disk Disabled",
+        "SWAP_DSBL": "Swap Disable",
+        "INVALID_EXPANSION": "Invalid Expansion",
+        "PARITY_NOT_BIGGEST": "Parity Not Biggest",
+        "TOO_MANY_MISSING_DISKS": "Too Many Missing Disks",
+        "NEW_DISK_TOO_SMALL": "New Disk Too Small",
+        "NO_DATA_DISKS": "No Data Disks",
+        "notifications": "Notifications",
+        "status": "Status",
+        "cpu": "CPU",
+        "memoryUsed": "Memory Used",
+        "memoryAvailable": "Memory Available",
+        "arrayUsed": "Array Used",
+        "arrayFree": "Array Free",
+        "poolUsed": "{{pool}} Used",
+        "poolFree": "{{pool}} Free"
+    },
+    "backrest": {
+        "num_plans": "Plans",
+        "num_success_30": "Successes",
+        "num_failure_30": "Failures",
+        "num_success_latest": "Succeeding",
+        "num_failure_latest": "Failing",
+        "bytes_added_30": "Bytes Added"
+    },
+    "yourspotify": {
+        "songs": "Songs",
+        "time": "Time",
+        "artists": "Artists"
+    },
+    "arcane": {
+        "containers": "Containers",
+        "images": "Images",
+        "image_updates": "Image Updates",
+        "images_unused": "Unused",
+        "environment_required": "Environment ID Required"
+    },
+    "dockhand": {
+        "running": "Running",
+        "stopped": "Stopped",
+        "cpu": "CPU",
+        "memory": "Memory",
+        "images": "Images",
+        "volumes": "Volumes",
+        "events_today": "Events Today",
+        "pending_updates": "Pending Updates",
+        "stacks": "Stacks",
+        "paused": "Paused",
+        "total": "Total",
+        "environment_not_found": "Environment Not Found"
+    },
+    "sparkyfitness": {
+        "eaten": "Eaten",
+        "burned": "Burned",
+        "remaining": "Remaining",
+        "steps": "Steps"
     }
 }

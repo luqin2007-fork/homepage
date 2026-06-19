@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import Block from "components/services/widget/block";
 import Container from "components/services/widget/container";
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "next-i18next/pages";
 
 import * as shvl from "utils/config/shvl";
 import useWidgetAPI from "utils/proxy/use-widget-api";
@@ -166,7 +166,11 @@ export default function Component({ service }) {
     refreshInterval: Math.max(1000, refreshInterval),
   });
 
-  if (customError) {
+  // if mappings includes an error field and the data contains an error field then show data even if there is an error
+  const mappingsIncludesError = Array.isArray(mappings) && mappings.find((mapping) => mapping.field === "error");
+  const errorIsData = customData && typeof customData === "object" && "error" in customData;
+
+  if (customError && !(mappingsIncludesError && errorIsData)) {
     return <Container service={service} error={customError} />;
   }
 

@@ -1,14 +1,14 @@
-import { createContext, useMemo, useState } from "react";
+import { createContext, useEffect, useMemo, useState } from "react";
 
 export const TabContext = createContext();
 
 export function TabProvider({ initialTab, children }) {
-  const [activeTab, setActiveTab] = useState(false);
+  const [activeTab, setActiveTab] = useState(() => initialTab ?? false);
   const [activeBookmarkTab, setActiveBookmarkTab] = useState(false);
 
-  if (initialTab) {
-    setActiveTab(initialTab);
-  }
+  useEffect(() => {
+    if (initialTab !== undefined) setActiveTab(initialTab ?? false);
+  }, [initialTab]);
 
   const value = useMemo(() => ({ activeTab, setActiveTab, activeBookmarkTab, setActiveBookmarkTab }), [activeTab, activeBookmarkTab]);
 

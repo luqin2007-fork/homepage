@@ -1,6 +1,6 @@
 import Block from "components/services/widget/block";
 import Container from "components/services/widget/container";
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "next-i18next/pages";
 
 import useWidgetAPI from "utils/proxy/use-widget-api";
 
@@ -24,23 +24,15 @@ export default function Component({ service }) {
   if (!data || (data && data.length === 0)) {
     return (
       <Container service={service}>
-        <Block label="myspeed.ping" />
         <Block label="myspeed.download" />
         <Block label="myspeed.upload" />
+        <Block label="myspeed.ping" />
       </Container>
     );
   }
 
   return (
     <Container service={service}>
-      <Block
-        label="myspeed.ping"
-        value={t("common.ms", {
-          value: data[0].ping,
-          style: "unit",
-          unit: "millisecond",
-        })}
-      />
       <Block
         label="myspeed.download"
         value={t("common.bitrate", {
@@ -54,6 +46,15 @@ export default function Component({ service }) {
           value: data[0].upload * 1000 * 1000,
           decimals: 2,
         })}
+      />
+      <Block
+        label="myspeed.ping"
+        value={t("common.ms", {
+          value: data[0].ping,
+          style: "unit",
+          unit: "millisecond",
+        })}
+        highlightValue={data[0].ping}
       />
     </Container>
   );

@@ -1,6 +1,6 @@
 import Block from "components/services/widget/block";
 import Container from "components/services/widget/container";
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "next-i18next/pages";
 import { BsCpu, BsFillCpuFill, BsFillPlayFill, BsPauseFill, BsVolumeMuteFill } from "react-icons/bs";
 import { MdOutlineSmartDisplay } from "react-icons/md";
 
@@ -176,9 +176,6 @@ function SessionEntry({ playCommand, session, enableUser, showEpisodeNumber, ena
 
 function CountBlocks({ service, countData }) {
   const { t } = useTranslation();
-  // allows filtering
-  // eslint-disable-next-line no-param-reassign
-  if (service.widget?.type === "jellyfin") service.widget.type = "emby";
 
   if (!countData) {
     return (
@@ -205,13 +202,14 @@ export default function Component({ service }) {
   const { t } = useTranslation();
 
   const { widget } = service;
+  const enableNowPlaying = service.widget?.enableNowPlaying ?? true;
 
   const {
     data: sessionsData,
     error: sessionsError,
     mutate: sessionMutate,
-  } = useWidgetAPI(widget, "Sessions", {
-    refreshInterval: 5000,
+  } = useWidgetAPI(widget, enableNowPlaying ? "Sessions" : "", {
+    refreshInterval: enableNowPlaying ? 5000 : undefined,
   });
 
   const { data: countData, error: countError } = useWidgetAPI(widget, "Count", {
@@ -239,13 +237,12 @@ export default function Component({ service }) {
   }
 
   const enableBlocks = service.widget?.enableBlocks;
-  const enableNowPlaying = service.widget?.enableNowPlaying ?? true;
   const enableMediaControl = service.widget?.enableMediaControl !== false; // default is true
   const enableUser = !!service.widget?.enableUser; // default is false
   const expandOneStreamToTwoRows = service.widget?.expandOneStreamToTwoRows !== false; // default is true
   const showEpisodeNumber = !!service.widget?.showEpisodeNumber; // default is false
 
-  if (!sessionsData || !countData) {
+  if ((enableNowPlaying && !sessionsData) || !countData) {
     return (
       <>
         {enableBlocks && <CountBlocks service={service} countData={null} />}

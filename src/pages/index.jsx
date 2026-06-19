@@ -7,8 +7,8 @@ import ServicesGroup from "components/services/group";
 import Tab, { slugifyAndEncode } from "components/tab";
 import Revalidate from "components/toggles/revalidate";
 import Widget from "components/widgets/widget";
-import { useTranslation } from "next-i18next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next/pages";
+import { serverSideTranslations } from "next-i18next/pages/serverSideTranslations";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -45,6 +45,17 @@ const Version = dynamic(() => import("components/version"), {
 
 const rightAlignedWidgets = ["weatherapi", "openweathermap", "weather", "openmeteo", "search", "datetime"];
 
+// Normalize language codes so older config values like zh-CN still point to Crowdin-provided ones
+const LANGUAGE_ALIASES = {
+  "zh-cn": "zh-Hans",
+};
+
+const normalizeLanguage = (language) => {
+  if (!language) return "en";
+  const alias = LANGUAGE_ALIASES[language.toLowerCase()];
+  return alias || language;
+};
+
 export async function getStaticProps() {
   let logger;
   try {
@@ -54,6 +65,7 @@ export async function getStaticProps() {
     const services = await servicesResponse();
     const bookmarks = await bookmarksResponse();
     const widgets = await widgetsResponse();
+    const language = normalizeLanguage(settings.language);
 
     return {
       props: {
@@ -64,7 +76,7 @@ export async function getStaticProps() {
           "/api/widgets": widgets,
           "/api/hash": false,
         },
-        ...(await serverSideTranslations(settings.language ?? "en")),
+        ...(await serverSideTranslations(language)),
       },
     };
   } catch (e) {
@@ -159,11 +171,13 @@ function Index({ initialSettings, fallback }) {
             >
               <div className="bg-amber-200 text-amber-800 dark:text-amber-200 dark:bg-amber-800 p-2 rounded-md font-bold">
                 <BiError className="float-right w-6 h-6" />
-                {error.config}
+                {error.name} - {error.config}
               </div>
               <div className="p-2 text-theme-100 dark:text-theme-200">
-                <pre className="opacity-50 font-bold pb-2">{error.reason}</pre>
-                <pre className="text-sm">{error.mark.snippet}</pre>
+                <pre className="opacity-50 font-bold pb-2">
+                  Reason: "{error.reason}" at line {error.mark?.line}
+                </pre>
+                <pre className="font-italic">Check logs for details.</pre>
               </div>
             </div>
           ))}
@@ -223,8 +237,9 @@ function Home({ initialSettings }) {
   );
 
   useEffect(() => {
-    if (settings.language) {
-      i18n.changeLanguage(settings.language);
+    const language = normalizeLanguage(settings.language);
+    if (language) {
+      i18n.changeLanguage(language);
     }
 
     if (settings.theme && theme !== settings.theme) {
@@ -472,6 +487,7 @@ function Home({ initialSettings }) {
             "A highly customizable homepage (or startpage / application dashboard) with Docker and service API integrations."
           }
         />
+        {settings.disableIndexing && <meta name="robots" content="noindex, nofollow" />}
         {settings.base && <base href={settings.base} />}
         {settings.favicon ? (
           <>
@@ -489,6 +505,7 @@ function Home({ initialSettings }) {
         )}
         <meta name="msapplication-TileColor" content={themes[settings.color || "slate"][settings.theme || "dark"]} />
         <meta name="theme-color" content={themes[settings.color || "slate"][settings.theme || "dark"]} />
+        <meta name="color-scheme" content="dark light"></meta>
       </Head>
 
       <Script src="/api/config/custom.js" />
@@ -496,7 +513,7 @@ function Home({ initialSettings }) {
       <div
         className={classNames(
           settings.fullWidth ? "" : "container",
-          "relative m-auto flex flex-col justify-start z-10 h-full",
+          "relative m-auto flex flex-col justify-start z-10 h-full min-h-screen",
         )}
       >
         <QuickLaunch
@@ -504,7 +521,7 @@ function Home({ initialSettings }) {
           searchString={searchString}
           setSearchString={setSearchString}
           isOpen={searching}
-          close={setSearching}
+          setSearching={setSearching}
         />
         <div
           id="information-widgets"
@@ -580,6 +597,7 @@ function Home({ initialSettings }) {
 
 export default function Wrapper({ initialSettings, fallback }) {
   const { theme } = useContext(ThemeContext);
+  const { color } = useContext(ColorContext);
   let backgroundImage = "";
   let opacity = initialSettings?.backgroundOpacity ?? 0;
   let backgroundBlur = false;
@@ -608,14 +626,22 @@ export default function Wrapper({ initialSettings, fallback }) {
     html.classList.toggle("dark", theme === "dark");
     html.classList.add(theme === "dark" ? "scheme-dark" : "scheme-light");
 
-    html.classList.remove(...Array.from(html.classList).filter((cls) => cls.startsWith("theme-")));
-    html.classList.add(`theme-${initialSettings.color || "slate"}`);
+    const desiredThemeClass = `theme-${color || initialSettings.color || "slate"}`;
+    const themeClassesToRemove = Array.from(html.classList).filter(
+      (cls) => cls.startsWith("theme-") && cls !== desiredThemeClass,
+    );
+    if (themeClassesToRemove.length) {
+      html.classList.remove(...themeClassesToRemove);
+    }
+    if (!html.classList.contains(desiredThemeClass)) {
+      html.classList.add(desiredThemeClass);
+    }
 
     // Remove any previously applied inline styles
     body.style.backgroundImage = "";
     body.style.backgroundColor = "";
     body.style.backgroundAttachment = "";
-  }, [backgroundImage, opacity, theme, initialSettings.color]);
+  }, [backgroundImage, opacity, theme, color, initialSettings.color]);
 
   return (
     <>

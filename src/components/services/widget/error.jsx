@@ -1,4 +1,4 @@
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "next-i18next/pages";
 import { IoAlertCircle } from "react-icons/io5";
 
 function displayError(error) {
@@ -14,6 +14,8 @@ export default function Error({ error }) {
 
   if (typeof error === "string") {
     error = { message: error }; // eslint-disable-line no-param-reassign
+  } else if (typeof error === "number") {
+    error = { message: `Error ${error}` }; // eslint-disable-line no-param-reassign
   }
 
   if (error?.data?.error) {
