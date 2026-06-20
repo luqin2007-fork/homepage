@@ -10,6 +10,7 @@ const clientSecret = process.env.HOMEPAGE_OIDC_CLIENT_SECRET;
 const homepageAuthSecret = process.env.HOMEPAGE_AUTH_SECRET;
 const homepageExternalUrl = process.env.HOMEPAGE_EXTERNAL_URL;
 const homepageAuthPassword = process.env.HOMEPAGE_AUTH_PASSWORD;
+const homepageAdminPassword = process.env.HOMEPAGE_ADMIN_PASSWORD;
 
 // Map HOMEPAGE_* envs to what NextAuth expects
 if (!process.env.NEXTAUTH_SECRET && homepageAuthSecret) {
@@ -73,6 +74,21 @@ if (authEnabled) {
         },
         async authorize(credentials) {
           const provided = credentials?.password ?? "";
+
+          // Check admin password first (if configured)
+          if (homepageAdminPassword) {
+            if (provided.length === homepageAdminPassword.length) {
+              const isAdminMatch = timingSafeEqual(
+                Buffer.from(provided),
+                Buffer.from(homepageAdminPassword)
+              );
+              if (isAdminMatch) {
+                return { id: "homepage-admin", name: "Admin", isAdmin: true };
+              }
+            }
+          }
+
+          // Check regular user password
           const expected = homepageAuthPassword ?? "";
           if (!expected || provided.length !== expected.length) {
             return null;
@@ -81,9 +97,12 @@ if (authEnabled) {
           if (!isMatch) {
             return null;
           }
+
+          // If no admin password configured, regular users get admin access
           return {
             id: "homepage",
             name: "Homepage",
+            isAdmin: !homepageAdminPassword,
           };
         },
       }),
@@ -109,6 +128,18 @@ export default NextAuth({
   events: {
     signIn: async (message) => console.debug("[nextauth][event][signIn]", message),
     signOut: async (message) => console.debug("[nextauth][event][signOut]", message),
-    error: async (message) => console.error("[nextauth][event][error]", message),
+    error: async (message) => console.error("[nextauth][error]", message),
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user?.isAdmin) {
+        token.isAdmin = true;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      session.isAdmin = token.isAdmin || false;
+      return session;
+    },
   },
 });

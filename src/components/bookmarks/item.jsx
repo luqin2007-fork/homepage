@@ -1,14 +1,19 @@
 import classNames from "classnames";
 import ResolvedIcon from "components/resolvedicon";
-import { useContext } from "react";
+import BookmarkEditor from "components/editors/bookmark-editor";
+import { useContext, useState } from "react";
+import { MdEdit } from "react-icons/md";
 import { BookmarkContext } from "utils/contexts/bookmark";
+import { EditModeContext } from "utils/contexts/editmode";
 import { SettingsContext } from "utils/contexts/settings";
 import { getHost } from "utils/url";
 
-export default function Item({ bookmark, iconOnly = false }) {
+export default function Item({ bookmark, iconOnly = false, groupName }) {
   const description = bookmark.description ?? new URL(bookmark.href).hostname;
   const { settings } = useContext(SettingsContext);
+  const { editMode } = useContext(EditModeContext);
   const { setBookmark, setSublistDialogShow } = useContext(BookmarkContext);
+  const [showEditor, setShowEditor] = useState(false);
 
   const showSublistDialog = (ev) => {
     if (bookmark.sublist) {
@@ -23,7 +28,7 @@ export default function Item({ bookmark, iconOnly = false }) {
     <li
       key={bookmark.name}
       id={bookmark.id}
-      className={classNames("bookmark", iconOnly && "grid")}
+      className={classNames("bookmark relative", iconOnly && "grid")}
       data-name={bookmark.name}
     >
       <a
@@ -83,7 +88,28 @@ export default function Item({ bookmark, iconOnly = false }) {
           </div>
         )}
       </a>
+
+      {/* Edit mode controls */}
+      {editMode && (
+        <div className="absolute top-0 right-0 z-20">
+          <button
+            onClick={() => setShowEditor(true)}
+            className="p-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            title="编辑"
+          >
+            <MdEdit className="w-3 h-3" />
+          </button>
+        </div>
+      )}
+
+      {/* Bookmark Editor Modal */}
+      {showEditor && (
+        <BookmarkEditor
+          bookmark={bookmark}
+          groupName={groupName}
+          onClose={() => setShowEditor(false)}
+        />
+      )}
     </li>
   );
 }
-

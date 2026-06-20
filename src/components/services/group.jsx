@@ -2,8 +2,10 @@ import { Disclosure, Transition } from "@headlessui/react";
 import classNames from "classnames";
 import ResolvedIcon from "components/resolvedicon";
 import List from "components/services/list";
-import { useEffect, useRef } from "react";
-import { MdKeyboardArrowDown } from "react-icons/md";
+import ServiceEditor from "components/editors/service-editor";
+import { useContext, useEffect, useRef, useState } from "react";
+import { MdAdd, MdKeyboardArrowDown } from "react-icons/md";
+import { EditModeContext } from "utils/contexts/editmode";
 
 import { columnMap } from "../../utils/layout/columns";
 
@@ -17,6 +19,8 @@ export default function ServicesGroup({
   isSubgroup,
   isAuthenticated,
 }) {
+  const { editMode } = useContext(EditModeContext);
+  const [showAddEditor, setShowAddEditor] = useState(false);
   const panel = useRef();
 
   useEffect(() => {
@@ -50,6 +54,18 @@ export default function ServicesGroup({
                 <h2 className="flex text-theme-800 dark:text-theme-300 text-xl font-medium service-group-name">
                   {group.name}
                 </h2>
+                {editMode && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowAddEditor(true);
+                    }}
+                    className="ml-2 p-1 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+                    title="添加服务"
+                  >
+                    <MdAdd className="w-4 h-4" />
+                  </button>
+                )}
                 <MdKeyboardArrowDown
                   className={classNames(
                     disableCollapse ? "hidden" : "",
@@ -113,6 +129,13 @@ export default function ServicesGroup({
           </>
         )}
       </Disclosure>
+
+      {showAddEditor && (
+        <ServiceEditor
+          groupName={group.name}
+          onClose={() => setShowAddEditor(false)}
+        />
+      )}
     </div>
   );
 }

@@ -3,8 +3,10 @@ import classNames from "classnames";
 import List from "components/bookmarks/list";
 import ErrorBoundary from "components/errorboundry";
 import ResolvedIcon from "components/resolvedicon";
-import { useEffect, useRef } from "react";
-import { MdKeyboardArrowDown } from "react-icons/md";
+import BookmarkEditor from "components/editors/bookmark-editor";
+import { useContext, useEffect, useRef, useState } from "react";
+import { MdAdd, MdKeyboardArrowDown } from "react-icons/md";
+import { EditModeContext } from "utils/contexts/editmode";
 
 export default function BookmarksGroup({
   bookmarks,
@@ -15,6 +17,8 @@ export default function BookmarksGroup({
   maxGroupColumns,
   isAuthenticated,
 }) {
+  const { editMode } = useContext(EditModeContext);
+  const [showAddEditor, setShowAddEditor] = useState(false);
   const panel = useRef();
 
   useEffect(() => {
@@ -46,6 +50,18 @@ export default function BookmarksGroup({
                 <h2 className="text-theme-800 dark:text-theme-300 text-xl font-medium bookmark-group-name">
                   {layout.name ?? bookmarks.name}
                 </h2>
+                {editMode && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowAddEditor(true);
+                    }}
+                    className="ml-2 p-1 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+                    title="添加书签"
+                  >
+                    <MdAdd className="w-4 h-4" />
+                  </button>
+                )}
                 <MdKeyboardArrowDown
                   className={classNames(
                     disableCollapse ? "hidden" : "",
@@ -74,13 +90,20 @@ export default function BookmarksGroup({
             >
               <Disclosure.Panel className="transition-all overflow-hidden duration-300 ease-out" ref={panel} static>
                 <ErrorBoundary>
-                  <List bookmarks={bookmarks.bookmarks} layout={layout} bookmarksStyle={bookmarksStyle} isAuthenticated={isAuthenticated} />
+                  <List bookmarks={bookmarks.bookmarks} layout={layout} bookmarksStyle={bookmarksStyle} isAuthenticated={isAuthenticated} groupName={bookmarks.name} />
                 </ErrorBoundary>
               </Disclosure.Panel>
             </Transition>
           </>
         )}
       </Disclosure>
+
+      {showAddEditor && (
+        <BookmarkEditor
+          groupName={bookmarks.name}
+          onClose={() => setShowAddEditor(false)}
+        />
+      )}
     </div>
   );
 }

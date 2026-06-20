@@ -15,15 +15,20 @@ import { useRouter } from "next/router";
 import Script from "next/script";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { BiError } from "react-icons/bi";
+import { MdAdd } from "react-icons/md";
 import useSWR, { SWRConfig } from "swr";
 import { useSession } from "next-auth/react";
 import { ColorContext } from "utils/contexts/color";
+import { EditModeContext } from "utils/contexts/editmode";
 import { SettingsContext } from "utils/contexts/settings";
 import { TabContext } from "utils/contexts/tab";
 import { ThemeContext } from "utils/contexts/theme";
 import SublistDialog from "components/bookmarks/sublistDialog";
 import Manage from "components/toggles/manage";
 import LocalMode from "components/toggles/localmode";
+import EditModeToggle from "components/toggles/editmode";
+import SettingsButton from "components/toggles/settings";
+import GroupEditor from "components/editors/group-editor";
 
 import { bookmarksResponse, servicesResponse, widgetsResponse } from "utils/config/api-response";
 import { getSettings } from "utils/config/config";
@@ -98,31 +103,34 @@ export async function getStaticProps() {
   }
 }
 
-function Index({ initialSettings, fallback }) {
+function Index({ initialSettings, fallback, editMode }) {
   const windowFocused = useWindowFocus();
   const [stale, setStale] = useState(false);
   const { data: errorsData } = useSWR("/api/validate");
   const { error: validateError } = errorsData || {};
   const { data: hashData, mutate: mutateHash } = useSWR("/api/hash");
+  const [lastHash, setLastHash] = useState(null);
 
   useEffect(() => {
-    if (windowFocused) {
+    if (windowFocused && !editMode) {
       mutateHash();
     }
-  }, [windowFocused, mutateHash]);
+  }, [windowFocused, mutateHash, editMode]);
 
   useEffect(() => {
-    if (hashData) {
+    if (hashData && !editMode) {
       if (typeof window !== "undefined") {
-        const previousHash = localStorage.getItem("hash");
+        const previousHash = lastHash || localStorage.getItem("hash");
 
         if (!previousHash) {
           localStorage.setItem("hash", hashData.hash);
+          setLastHash(hashData.hash);
         }
 
         if (previousHash && previousHash !== hashData.hash) {
           setStale(true);
           localStorage.setItem("hash", hashData.hash);
+          setLastHash(hashData.hash);
 
           fetch("/api/revalidate").then((res) => {
             if (res.ok) {
@@ -132,7 +140,7 @@ function Index({ initialSettings, fallback }) {
         }
       }
     }
-  }, [hashData]);
+  }, [hashData, editMode, lastHash]);
 
   if (validateError) {
     return (
@@ -221,9 +229,24 @@ function Home({ initialSettings }) {
   const { color, setColor } = useContext(ColorContext);
   const { settings, setSettings } = useContext(SettingsContext);
   const { activeTab, setActiveTab, activeBookmarkTab, setActiveBookmarkTab } = useContext(TabContext);
+  const { editMode, setEditMode } = useContext(EditModeContext);
   const { asPath } = useRouter();
   const { data: session } = useSession();
   const isAuthenticated = Boolean(session);
+  const [showAddTabEditor, setShowAddTabEditor] = useState(false);
+  const [showAddBookmarkTabEditor, setShowAddBookmarkTabEditor] = useState(false);
+  const [wasEditMode, setWasEditMode] = useState(false);
+
+  // Track when exiting edit mode to refresh data
+  useEffect(() => {
+    if (editMode) {
+      setWasEditMode(true);
+    } else if (wasEditMode) {
+      // Just exited edit mode - refresh to pick up any changes
+      setWasEditMode(false);
+      window.location.reload();
+    }
+  }, [editMode, wasEditMode]);
 
   useEffect(() => {
     setSettings(initialSettings);
@@ -413,6 +436,17 @@ function Home({ initialSettings }) {
               {tabs.map((tab) => (
                 <Tab key={tab} tab={tab} isBookmarkTab={false} />
               ))}
+              {editMode && (
+                <li className="flex items-center justify-center">
+                  <button
+                    onClick={() => setShowAddTabEditor(true)}
+                    className="p-1 m-1 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+                    title="添加 Tab"
+                  >
+                    <MdAdd className="w-4 h-4" />
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
         )}
@@ -489,6 +523,17 @@ function Home({ initialSettings }) {
               {bookmarkTabs.map((tab) => (
                 <Tab key={tab} tab={tab} isBookmarkTab={true} />
               ))}
+              {editMode && (
+                <li className="flex items-center justify-center">
+                  <button
+                    onClick={() => setShowAddBookmarkTabEditor(true)}
+                    className="p-1 m-1 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+                    title="添加 Bookmark Tab"
+                  >
+                    <MdAdd className="w-4 h-4" />
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
         )}
@@ -638,6 +683,8 @@ function Home({ initialSettings }) {
 
         <div id="footer" className="flex flex-col mt-auto p-8 w-full">
           <div id="style" className="flex w-full justify-end">
+            {session?.isAdmin && <EditModeToggle />}
+            {session?.isAdmin && <SettingsButton />}
             <Manage />
             <LocalMode />
             {!settings?.color && <ColorToggle />}
@@ -649,6 +696,22 @@ function Home({ initialSettings }) {
             {!settings.hideVersion && <Version disableUpdateCheck={settings.disableUpdateCheck} />}
           </div>
         </div>
+
+        {/* Add Tab Editor */}
+        {showAddTabEditor && (
+          <GroupEditor
+            type="service"
+            onClose={() => setShowAddTabEditor(false)}
+          />
+        )}
+
+        {/* Add Bookmark Tab Editor */}
+        {showAddBookmarkTabEditor && (
+          <GroupEditor
+            type="bookmark"
+            onClose={() => setShowAddBookmarkTabEditor(false)}
+          />
+        )}
       </div>
     </>
   );
@@ -657,6 +720,7 @@ function Home({ initialSettings }) {
 export default function Wrapper({ initialSettings, fallback }) {
   const { theme } = useContext(ThemeContext);
   const { color } = useContext(ColorContext);
+  const { editMode } = useContext(EditModeContext);
   let backgroundImage = "";
   let opacity = initialSettings?.backgroundOpacity ?? 0;
   let backgroundBlur = false;
@@ -725,7 +789,7 @@ export default function Wrapper({ initialSettings, fallback }) {
             backgroundBrightness && `backdrop-brightness-${initialSettings.background.brightness}`,
           )}
         >
-          <Index initialSettings={initialSettings} fallback={fallback} />
+          <Index initialSettings={initialSettings} fallback={fallback} editMode={editMode} />
         </div>
       </div>
     </>

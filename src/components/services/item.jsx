@@ -1,8 +1,11 @@
 import classNames from "classnames";
 import ResolvedIcon from "components/resolvedicon";
+import ServiceEditor from "components/editors/service-editor";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { SettingsContext } from "utils/contexts/settings";
 import { LocalModeContext } from "utils/contexts/localmode";
+import { EditModeContext } from "utils/contexts/editmode";
+import { MdEdit, MdDelete } from "react-icons/md";
 import Docker from "widgets/docker/component";
 import Kubernetes from "widgets/kubernetes/component";
 import ProxmoxVM from "widgets/proxmoxvm/component";
@@ -16,6 +19,8 @@ import Widget from "./widget";
 
 export default function Item({ service, groupName, useEqualHeights }) {
   const { localMode } = useContext(LocalModeContext);
+  const { editMode } = useContext(EditModeContext);
+  const [showEditor, setShowEditor] = useState(false);
   const tabLink = useMemo(() => (localMode && service.localHref) ? service.localHref : service.href, [localMode, service]);
   const tabIcon = useMemo(() => (localMode && service.localIcon) ? service.localIcon : service.icon, [localMode, service]);
   const tabWidgets = useMemo(() => (localMode && service.localWidgets) ? service.localWidgets : service.widgets, [localMode, service]);
@@ -193,7 +198,29 @@ export default function Item({ service, groupName, useEqualHeights }) {
         {tabWidgets.map((widget) => (
           <Widget widget={widget} service={service} key={widget.index} />
         ))}
+
+        {/* Edit mode controls */}
+        {editMode && (
+          <div className="absolute top-1 right-1 flex gap-1 z-20">
+            <button
+              onClick={() => setShowEditor(true)}
+              className="p-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              title="编辑"
+            >
+              <MdEdit className="w-3 h-3" />
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Service Editor Modal */}
+      {showEditor && (
+        <ServiceEditor
+          service={service}
+          groupName={groupName}
+          onClose={() => setShowEditor(false)}
+        />
+      )}
     </li>
   );
 }

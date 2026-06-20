@@ -3,7 +3,7 @@ import Item from "components/bookmarks/item";
 
 import { columnMap } from "../../utils/layout/columns";
 
-export default function List({ bookmarks, layout, bookmarksStyle, isAuthenticated }) {
+export default function List({ bookmarks, layout, bookmarksStyle, isAuthenticated, groupName }) {
   const filteredBookmarks = bookmarks.filter((bookmark) => !bookmark.protected || isAuthenticated);
   
   let classes = layout?.style === "row" ? `grid ${columnMap[layout?.columns]} gap-x-2` : "flex flex-col bookmark-list";
@@ -21,6 +21,7 @@ export default function List({ bookmarks, layout, bookmarksStyle, isAuthenticate
           key={`${bookmark.name}-${bookmark.href}`}
           bookmark={bookmark}
           iconOnly={layout?.iconsOnly || bookmarksStyle === "icons"}
+          groupName={groupName}
         />
       ))}
     </ul>

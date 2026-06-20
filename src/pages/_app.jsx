@@ -12,6 +12,7 @@ import { TabProvider } from "utils/contexts/tab";
 import { ThemeProvider } from "utils/contexts/theme";
 import { BookmarkProvider } from "utils/contexts/bookmark";
 import { LocalModeProvider } from "utils/contexts/localmode";
+import { EditModeProvider } from "utils/contexts/editmode";
 
 import nextI18nextConfig from "../../next-i18next.config";
 
@@ -94,7 +95,9 @@ function MyApp({ Component, pageProps }) {
               <TabProvider>
                 <BookmarkProvider>
                   <LocalModeProvider>
-                    <Component {...pageProps} />
+                    <EditModeProvider>
+                      <Component {...pageProps} />
+                    </EditModeProvider>
                   </LocalModeProvider>
                 </BookmarkProvider>
               </TabProvider>
